@@ -29,6 +29,39 @@ This project was built to:
 - Prevents directory traversal (e.g., `../`)
 - No third-party dependencies — only Go standard library
 
+## How to run
+
+1. clone the repository
+
+```bash
+git clone https://github.com/raphico/go-http-server-scratch.git
+cd go-http-server-scratch
+```
+
+2. Run the server
+
+```bash
+go run cmd/server/main.go
+```
+
+3. Try it out
+
+```bash
+curl http://localhost:4221/
+curl http://localhost:4221/echo/hello
+curl -v --header "User-Agent: foobar/1.2.3" http://localhost:4221/user-agent
+```
+
+## Folder structure
+
+| File                            | Purpose                                          |
+| ------------------------------- | ------------------------------------------------ |
+| `cmd/server/main.go`            | Start server                                     |
+| `internal/server/server.go`     | Handles TCP socket and connection management     |
+| `internal/protocol/request.go`  | HTTP request parsing                             |
+| `internal/protocol/response.go` | HTTP response generation                         |
+| `internal/protocol/header.go`   | Manages HTTP header parsing, storage, and access |
+
 ## Credits
 
 Inspired by [@coder-crafters](https://codecrafters.io/) HTTP Server Challenge
