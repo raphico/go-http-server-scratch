@@ -30,17 +30,20 @@ func (s *Server) Start() error {
 		return fmt.Errorf("failed to start bind to port: %v", port);
 	}
 
-	conn, err := listener.Accept()
-	if err != nil {
-		return fmt.Errorf("failed to accept connection: %v", err)
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			return fmt.Errorf("failed to accept connection: %v", err)
+		}
+
+		go s.handleConnection(conn)
 	}
-
-	s.handleConnection(conn)
-
-	return nil
 }
 
 func (s *Server) handleConnection(conn net.Conn)  {
+	// close the tcp connection once done
+	defer conn.Close()
+	
 	response := protocol.NewResponse(conn)
 
 	request, err := protocol.ParseRequest(conn)
