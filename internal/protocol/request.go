@@ -26,7 +26,7 @@ func ParseRequest(conn net.Conn) (*Request, error) {
 
 	requestLine, err := reader.ReadString('\n')
 	if err != nil {
-		return nil, fmt.Errorf("failed to read request: %v", err)
+		return nil, fmt.Errorf("failed to read request: %w", err)
 	}
 
 	parts := strings.Split(strings.TrimSpace(requestLine), " ")
@@ -36,7 +36,7 @@ func ParseRequest(conn net.Conn) (*Request, error) {
 
 	parsedUrl, err := url.Parse(parts[1])
 	if err != nil {
-		return nil, fmt.Errorf("failed to read request: %v", err)
+		return nil, fmt.Errorf("failed to read request: %w", err)
 	}
 
 	request.Method = parts[0]
@@ -46,7 +46,7 @@ func ParseRequest(conn net.Conn) (*Request, error) {
 	for {
 		header, err := reader.ReadString('\n')
 		if err != nil {
-			return nil, fmt.Errorf("failed to read request: %v", err)
+			return nil, fmt.Errorf("failed to read request: %w", err)
 		}
 
 		header = strings.TrimSpace(header)
@@ -70,12 +70,12 @@ func ParseRequest(conn net.Conn) (*Request, error) {
 	if len(clStr) > 0 {
 		contentLength, err := strconv.Atoi(clStr)
 		if err != nil {
-			return nil, fmt.Errorf("invalid Content-Length: %v", err)
+			return nil, fmt.Errorf("invalid Content-Length: %w", err)
 		}
 
 		buf := make([]byte, contentLength)
 		if _, err := io.ReadFull(reader, buf); err != nil {
-			return nil, fmt.Errorf("failed to read request's body: %v", err)
+			return nil, fmt.Errorf("failed to read request's body: %w", err)
 		}
 
 		request.Body = buf

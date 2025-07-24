@@ -19,7 +19,7 @@ func CompressIfSupported(w protocol.Response, r *protocol.Request, body []byte) 
 		}
 
 		return data
-	} 
+	}
 
 	return body
 }
@@ -33,9 +33,9 @@ func gzipBytes(data []byte) ([]byte, error) {
 		return nil, err
 	}
 
-    if err := gz.Close(); err != nil {
-        return nil, err
-    }
+	if err := gz.Close(); err != nil {
+		return nil, err
+	}
 
-    return buf.Bytes(), nil
+	return buf.Bytes(), nil
 }

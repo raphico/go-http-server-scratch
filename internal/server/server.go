@@ -1,7 +1,9 @@
 package server
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"net"
 	"strings"
 
@@ -44,15 +46,21 @@ func (s *Server) handleConnection(conn net.Conn) {
 	// close the tcp connection once done
 	defer conn.Close()
 
-	response := protocol.NewResponse(conn)
+	for {
+		response := protocol.NewResponse(conn)
+		request, err := protocol.ParseRequest(conn)
 
-	request, err := protocol.ParseRequest(conn)
-	if err != nil {
-		fmt.Printf("%s", err.Error())
-		response.Write(protocol.StatusBadRequest, nil)
-		response.Send()
-		return
+		if err != nil {
+			if errors.Is(err, io.EOF) || errors.Is(err, net.ErrClosed) {
+				break
+			}
+
+			fmt.Printf("%s", err.Error())
+			response.Write(protocol.StatusBadRequest, nil)
+			response.Send()
+			continue
+		}
+
+		s.mux.Match(response, request)
 	}
-
-	s.mux.Match(response, request)
 }
