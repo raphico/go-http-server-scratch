@@ -20,8 +20,6 @@ var StatusText = map[int]string {
 	StatusInternalServerError: "Internal Server Error",
 }
 
-type Header map[string][]string
-
 type Response struct {
 	conn net.Conn
 	statusCode int
@@ -38,10 +36,6 @@ func NewResponse(conn net.Conn) Response {
 
 func (r *Response) Header() Header {
 	return r.headers
-}
-
-func (h Header) Set(key string, value string) {
-	h[key] = append(h[key], value)
 }
 
 func (r *Response) Write(statusCode int, body []byte) {

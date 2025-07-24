@@ -1,10 +1,8 @@
 package server
 
 import (
-	"bufio"
 	"fmt"
 	"net"
-	"os"
 	"strings"
 
 	"github.com/raphico/go-http-server-scratch/internal/protocol"
@@ -40,41 +38,42 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) handleConnection(conn net.Conn)  {
-	var response protocol.Response = protocol.NewResponse(conn)
+	response := protocol.NewResponse(conn)
 
-	reader := bufio.NewReader(conn)
-	requestLine, err := reader.ReadString('\n')
+	request, err := protocol.ParseRequest(conn)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to read request: ", err.Error())
-		response.Write(protocol.StatusInternalServerError, nil)
-		response.Send()
-		return;
-	}
-
-	parts := strings.Split(strings.TrimSpace(requestLine), " ")
-	if len(parts) < 3 {
+		fmt.Printf("%s", err.Error())
 		response.Write(protocol.StatusBadRequest, nil)
 		response.Send()
-		return;
+		return
 	}
 
-	path := parts[1]
+	r := *request
+
 	switch {
-	case path == "/":
+	case r.URL.Path == "/":
 		response.Write(protocol.StatusOk, nil)
 		response.Send()
-	case strings.HasPrefix(path, "/echo/"):
-		parts = strings.Split(path, "/")
+
+	case strings.HasPrefix(r.URL.Path, "/echo/"):
+		parts := strings.Split(r.URL.Path, "/")
 		if len(parts) != 3 {
 			response.Write(protocol.StatusBadRequest, nil)
 			response.Send()
 			return;
 		}
 
-		msg := parts[2];
-		response.Write(protocol.StatusOk, []byte(msg))
+		body := parts[2];
+		response.Write(protocol.StatusOk, []byte(body))
 		response.Header().Set("Content-Type", "text/plain")
 		response.Header().Set("Content-Length", "3")
+		response.Send()
+
+	case r.URL.Path == "/user-agent":
+		body := r.Headers.Get("User-Agent")
+		response.Write(protocol.StatusOk, []byte(body))
+		response.Header().Set("Content-Type", "text/plain")
+		response.Header().Set("Content-Length", fmt.Sprint(len(body)))
 		response.Send()
 
 	default:
