@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/raphico/go-http-server-scratch/internal/compress"
 	"github.com/raphico/go-http-server-scratch/internal/protocol"
 )
 
@@ -69,7 +70,8 @@ func GetFileHandler(w protocol.Response, r *protocol.Request) {
 		return
 	}
 
-	w.Write(protocol.StatusOk, data)
+	compressedBody := compress.CompressIfSupported(w, r, data)
+	w.Write(protocol.StatusOk, compressedBody)
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Content-Length", fmt.Sprint(len(data)))
 	w.Send()
