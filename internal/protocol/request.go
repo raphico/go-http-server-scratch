@@ -10,12 +10,12 @@ import (
 
 type Request struct {
 	Headers Header
-	Method string 
-	URL *url.URL
+	Method  string
+	URL     *url.URL
 }
 
 func ParseRequest(conn net.Conn) (*Request, error) {
-	var request = Request {
+	var request = Request{
 		Headers: make(Header),
 	}
 
@@ -54,7 +54,7 @@ func ParseRequest(conn net.Conn) (*Request, error) {
 		if len(parts) != 2 {
 			return nil, fmt.Errorf("failed to read request: invalid header")
 		}
-		
+
 		key, value := parts[0], parts[1]
 		request.Headers.Set(key, value)
 	}

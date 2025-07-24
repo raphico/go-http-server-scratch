@@ -16,7 +16,7 @@ type Mux struct {
 }
 
 func New() *Mux {
-	return &Mux {
+	return &Mux{
 		Routes: make(Routes),
 	}
 }
@@ -34,13 +34,12 @@ func (m *Mux) Match(w protocol.Response, r *protocol.Request) {
 		}
 
 		// for dynamic routes
-		if 
-			pattern != "/" &&
-			strings.HasPrefix(pattern, "/") && 
+		if pattern != "/" &&
+			strings.HasPrefix(pattern, "/") &&
 			strings.HasPrefix(r.URL.Path, pattern) {
-				handler(w, r)
-				return
-			}
+			handler(w, r)
+			return
+		}
 	}
 
 	handler.NotFoundHandler(w, r)

@@ -7,15 +7,15 @@ import (
 )
 
 type Response struct {
-	conn net.Conn
+	conn       net.Conn
 	statusCode int
-	body []byte
-	headers  Header
+	body       []byte
+	headers    Header
 }
 
 func NewResponse(conn net.Conn) Response {
-	return Response {
-		conn: conn,
+	return Response{
+		conn:    conn,
 		headers: make(Header),
 	}
 }
@@ -29,9 +29,9 @@ func (r *Response) Write(statusCode int, body []byte) {
 	r.statusCode = statusCode
 }
 
-func (r *Response) Send () {
-	var builder strings.Builder	
-	
+func (r *Response) Send() {
+	var builder strings.Builder
+
 	// write status line
 	statusLine := fmt.Sprintf("HTTP/1.1 %d %s\r\n", r.statusCode, StatusText[r.statusCode])
 	builder.WriteString(statusLine)

@@ -19,7 +19,8 @@ func main() {
 	mux.HandleFunc("/", handler.HomeHandler)
 	mux.HandleFunc("/echo/", handler.EchoHandler)
 	mux.HandleFunc("/user-agent", handler.UserAgentHandler)
-	
+	mux.HandleFunc("/files", handler.FilesHandler)
+
 	s := server.New(addr, mux)
 	if err := s.Start(); err != nil {
 		fmt.Fprint(os.Stderr, "Failed to start server: ", err.Error())

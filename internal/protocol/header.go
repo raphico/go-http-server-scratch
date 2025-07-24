@@ -10,6 +10,6 @@ func (h Header) Get(key string) string {
 	if values, ok := h[key]; ok && len(values) > 0 {
 		return values[0]
 	}
-	
+
 	return ""
 }

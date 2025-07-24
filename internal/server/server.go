@@ -11,11 +11,11 @@ import (
 
 type Server struct {
 	addr string
-	mux *mux.Mux
+	mux  *mux.Mux
 }
 
 func New(addr string, mux *mux.Mux) *Server {
-	return &Server {
+	return &Server{
 		addr,
 		mux,
 	}
@@ -27,7 +27,7 @@ func (s *Server) Start() error {
 	listener, err := net.Listen("tcp", s.addr)
 	if err != nil {
 		port := strings.Split(s.addr, ":")[1]
-		return fmt.Errorf("failed to start bind to port: %v", port);
+		return fmt.Errorf("failed to start bind to port: %v", port)
 	}
 
 	for {
@@ -40,10 +40,10 @@ func (s *Server) Start() error {
 	}
 }
 
-func (s *Server) handleConnection(conn net.Conn)  {
+func (s *Server) handleConnection(conn net.Conn) {
 	// close the tcp connection once done
 	defer conn.Close()
-	
+
 	response := protocol.NewResponse(conn)
 
 	request, err := protocol.ParseRequest(conn)
