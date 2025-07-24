@@ -13,3 +13,11 @@ func (h Header) Get(key string) string {
 
 	return ""
 }
+
+func (h Header) Values(key string) []string {
+	if values, ok := h[key]; ok && len(values) > 0 {
+		return values;
+	}
+
+	return nil
+}

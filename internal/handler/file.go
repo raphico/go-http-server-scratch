@@ -73,7 +73,7 @@ func GetFileHandler(w protocol.Response, r *protocol.Request) {
 	compressedBody := compress.CompressIfSupported(w, r, data)
 	w.Write(protocol.StatusOk, compressedBody)
 	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Length", fmt.Sprint(len(data)))
+	w.Header().Set("Content-Length", fmt.Sprint(len(compressedBody)))
 	w.Send()
 }
 

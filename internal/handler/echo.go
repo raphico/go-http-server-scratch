@@ -21,6 +21,6 @@ func EchoHandler(w protocol.Response, r *protocol.Request) {
 
 	w.Write(protocol.StatusOk, compressedBody)
 	w.Header().Set("Content-Type", "text/plain")
-	w.Header().Set("Content-Length", fmt.Sprint(len(body)))
+	w.Header().Set("Content-Length", fmt.Sprint(len(compressedBody)))
 	w.Send()
 }

@@ -60,7 +60,9 @@ func ParseRequest(conn net.Conn) (*Request, error) {
 		}
 
 		key, value := parts[0], parts[1]
-		request.Headers.Set(key, value)
+		for v := range strings.SplitSeq(value, ", ") {
+			request.Headers.Set(key, v)
+		}
 	}
 
 	// adds request's body
