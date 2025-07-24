@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net"
 
 	"github.com/raphico/go-http-server-scratch/internal/mux"
@@ -12,19 +13,21 @@ import (
 )
 
 type Server struct {
-	addr string
-	mux  *mux.Mux
+	addr   string
+	mux    *mux.Mux
+	logger *slog.Logger
 }
 
-func New(addr string, mux *mux.Mux) *Server {
+func New(addr string, mux *mux.Mux, logger *slog.Logger) *Server {
 	return &Server{
 		addr,
 		mux,
+		logger,
 	}
 }
 
 func (s *Server) Start() error {
-	fmt.Printf("Starting server on %s\n", s.addr)
+	s.logger.Info("Starting server", "address", s.addr)
 
 	listener, err := net.Listen("tcp", s.addr)
 	if err != nil {
@@ -42,8 +45,12 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) handleConnection(conn net.Conn) {
-	// close the tcp connection once done
-	defer conn.Close()
+	defer func() {
+		s.logger.Info("closing connection", "remote_addr", conn.RemoteAddr().String())
+		conn.Close()
+	}()
+
+	s.logger.Info("new connection accepted", "remote_addr", conn.RemoteAddr().String())
 
 	reader := bufio.NewReader(conn)
 
@@ -53,18 +60,26 @@ func (s *Server) handleConnection(conn net.Conn) {
 
 		if err != nil {
 			if errors.Is(err, io.EOF) || errors.Is(err, net.ErrClosed) {
+				s.logger.Info("connection closed by client", "remote_addr", conn.RemoteAddr().String())
 				break
 			}
 
-			fmt.Printf("%s", err.Error())
+			s.logger.Error("failed to parse request", "remote_addr", conn.RemoteAddr().String(), "error", err)
 			response.Write(protocol.StatusBadRequest, nil)
 			response.Send()
 			continue
 		}
 
+		s.logger.Info("request received",
+			"remote_addr", conn.RemoteAddr().String(),
+			"method", request.Method,
+			"path", request.URL.Path,
+		)
+
 		s.mux.Match(response, request)
 
 		if request.Headers.Get("Connection") == "close" {
+			s.logger.Info("client requested connection close", "remote_addr", conn.RemoteAddr().String())
 			break
 		}
 	}

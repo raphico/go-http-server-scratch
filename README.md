@@ -27,6 +27,7 @@ This project was built to:
 - 404 Not Found for unknown routes
 - Graceful connection closing (`Connection: close`, EOF handling)
 - Prevents directory traversal (e.g., `../`)
+- Includes structured logging (standard `slog` package) for connections and route handling.
 - No third-party dependencies — only Go standard library
 
 ## How to run
@@ -50,6 +51,10 @@ go run cmd/server/main.go
 curl http://localhost:4221/
 curl http://localhost:4221/echo/hello
 curl -v --header "User-Agent: foobar/1.2.3" http://localhost:4221/user-agent
+curl -v -H "Accept-Encoding: gzip" http://localhost:4221/echo/abc | hexdump -C
+curl -v --data "12345" -H "Content-Type: application/octet-stream" http://localhost:4221/files/file_123
+curl -i http://localhost:4221/files/foo
+curl -i http://localhost:4221/files/non_existant_file
 ```
 
 ## Folder structure

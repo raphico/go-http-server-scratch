@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/raphico/go-http-server-scratch/internal/handler"
@@ -12,6 +13,8 @@ import (
 const port = 4221
 
 func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
 	addr := fmt.Sprintf("0.0.0.0:%v", port)
 
 	mux := mux.New()
@@ -22,9 +25,9 @@ func main() {
 	mux.HandleFunc("GET /files", handler.GetFileHandler)
 	mux.HandleFunc("POST /files", handler.PostFileHandler)
 
-	s := server.New(addr, mux)
+	s := server.New(addr, mux, logger)
 	if err := s.Start(); err != nil {
-		fmt.Fprint(os.Stderr, "Failed to start server: ", err.Error())
+		logger.Error("Failed to start server", "error", err)
 		os.Exit(1)
 	}
 }
