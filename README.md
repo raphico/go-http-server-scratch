@@ -1,6 +1,6 @@
 # Build Your Own HTTP/1.1 Server in GO
 
-A low-level HTTP/1.1 server implementation from scratch using only TCP primitives provided by the GO standard library. Inspired by the CoderCrafters challenge.
+This is a fully functional HTTP/1.1 server implemented from scratch using only low-level networking primitives provided by the Go standard library. It was created as a systems-level learning project to explore how web servers operate at the lowest level, including TCP socket management, manual HTTP parsing, and concurrent connection handling
 
 ## Motivation
 
@@ -61,6 +61,8 @@ curl -v --header "User-Agent: foobar/1.2.3" http://localhost:4221/user-agent
 | `internal/protocol/request.go`  | HTTP request parsing                             |
 | `internal/protocol/response.go` | HTTP response generation                         |
 | `internal/protocol/header.go`   | Manages HTTP header parsing, storage, and access |
+| `internal/server/handler`       | handler functions                                |
+| `internal/server/mux`           | Defines multiplexer                              |
 
 ## Credits
 

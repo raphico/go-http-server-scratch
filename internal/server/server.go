@@ -5,16 +5,19 @@ import (
 	"net"
 	"strings"
 
+	"github.com/raphico/go-http-server-scratch/internal/mux"
 	"github.com/raphico/go-http-server-scratch/internal/protocol"
 )
 
 type Server struct {
 	addr string
+	mux *mux.Mux
 }
 
-func New(addr string) *Server {
+func New(addr string, mux *mux.Mux) *Server {
 	return &Server {
 		addr,
+		mux,
 	}
 }
 
@@ -48,36 +51,5 @@ func (s *Server) handleConnection(conn net.Conn)  {
 		return
 	}
 
-	r := *request
-
-	switch {
-	case r.URL.Path == "/":
-		response.Write(protocol.StatusOk, nil)
-		response.Send()
-
-	case strings.HasPrefix(r.URL.Path, "/echo/"):
-		parts := strings.Split(r.URL.Path, "/")
-		if len(parts) != 3 {
-			response.Write(protocol.StatusBadRequest, nil)
-			response.Send()
-			return;
-		}
-
-		body := parts[2];
-		response.Write(protocol.StatusOk, []byte(body))
-		response.Header().Set("Content-Type", "text/plain")
-		response.Header().Set("Content-Length", "3")
-		response.Send()
-
-	case r.URL.Path == "/user-agent":
-		body := r.Headers.Get("User-Agent")
-		response.Write(protocol.StatusOk, []byte(body))
-		response.Header().Set("Content-Type", "text/plain")
-		response.Header().Set("Content-Length", fmt.Sprint(len(body)))
-		response.Send()
-
-	default:
-		response.Write(protocol.StatusNotFound, nil)
-		response.Send()
-	}
+	s.mux.Match(response, request)
 }
