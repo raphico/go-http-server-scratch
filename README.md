@@ -18,8 +18,8 @@ This project was built to:
   - `GET /` — Health check
   - `GET /echo/<msg>` — Echoes message in response body
   - `GET /user-agent` — Returns `User-Agent` header
-  - `GET /files/<filename>` — Serves static file from `./public/`
-  - `POST /files/<filename>` — Saves file to disk in `./public/`
+  - `GET /files/<filename>` — Return a file content
+  - `POST /files/<filename>` — Reads request body and Saves file to disk
 - Gzip compression for clients that support it (`Accept-Encoding: gzip`)
 - Concurrency using goroutines (one per connection)
 - Persistent connections (`Connection: keep-alive`)

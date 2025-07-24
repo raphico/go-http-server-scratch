@@ -10,7 +10,7 @@ import (
 	"github.com/raphico/go-http-server-scratch/internal/protocol"
 )
 
-func FilesHandler(w protocol.Response, r *protocol.Request) {
+func PostFileHandler(w protocol.Response, r *protocol.Request) {
 	parts := strings.Split(r.URL.Path, "/")
 	if len(parts) != 3 {
 		w.Write(protocol.StatusBadRequest, nil)
@@ -18,8 +18,44 @@ func FilesHandler(w protocol.Response, r *protocol.Request) {
 		return
 	}
 
-	requestedFile := parts[2]
-	safePath, ok, err := isPathSafe("/tmp", requestedFile)
+	filename := parts[2]
+	safePath, ok, err := isPathSafe("/tmp", filename)
+	if err != nil || !ok {
+		w.Write(protocol.StatusBadRequest, nil)
+		w.Send()
+		return
+	}
+
+	file, err := os.Create(safePath)
+	if err != nil {
+		w.Write(protocol.StatusInternalServerError, nil)
+		w.Send()
+		return
+	}
+
+	defer file.Close()
+
+	_, err = file.Write(r.Body)
+	if err != nil {
+		w.Write(protocol.StatusInternalServerError, nil)
+		w.Send()
+		return
+	}
+
+	w.Write(protocol.StatusCreated, nil)
+	w.Send()
+}
+
+func GetFileHandler(w protocol.Response, r *protocol.Request) {
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) != 3 {
+		w.Write(protocol.StatusBadRequest, nil)
+		w.Send()
+		return
+	}
+
+	filename := parts[2]
+	safePath, ok, err := isPathSafe("/tmp", filename)
 	if err != nil || !ok {
 		w.Write(protocol.StatusBadRequest, nil)
 		w.Send()

@@ -27,16 +27,32 @@ func (m *Mux) HandleFunc(pattern string, handler HandlerFunc) {
 
 func (m *Mux) Match(w protocol.Response, r *protocol.Request) {
 	for pattern, handler := range m.Routes {
+		p := pattern
+		method := "GET"
+
+		parts := strings.Split(pattern, " ")
+		if len(parts) > 2 {
+			w.Write(protocol.StatusInternalServerError, nil)
+			w.Send()
+			return
+		}
+
+		if len(parts) == 2 {
+			p = parts[1]
+			method = parts[0]
+		}
+
 		// an exact match
-		if pattern == r.URL.Path {
+		if p == r.URL.Path && method == r.Method {
 			handler(w, r)
 			return
 		}
 
 		// for dynamic routes
-		if pattern != "/" &&
-			strings.HasPrefix(pattern, "/") &&
-			strings.HasPrefix(r.URL.Path, pattern) {
+		if p != "/" &&
+			strings.HasPrefix(p, "/") &&
+			strings.HasPrefix(r.URL.Path, p) &&
+			method == r.Method {
 			handler(w, r)
 			return
 		}

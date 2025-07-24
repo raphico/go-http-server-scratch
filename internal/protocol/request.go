@@ -3,8 +3,10 @@ package protocol
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"net"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -12,6 +14,7 @@ type Request struct {
 	Headers Header
 	Method  string
 	URL     *url.URL
+	Body    []byte
 }
 
 func ParseRequest(conn net.Conn) (*Request, error) {
@@ -39,6 +42,7 @@ func ParseRequest(conn net.Conn) (*Request, error) {
 	request.Method = parts[0]
 	request.URL = parsedUrl
 
+	// adds request's headers
 	for {
 		header, err := reader.ReadString('\n')
 		if err != nil {
@@ -57,6 +61,24 @@ func ParseRequest(conn net.Conn) (*Request, error) {
 
 		key, value := parts[0], parts[1]
 		request.Headers.Set(key, value)
+	}
+
+	// adds request's body
+	clStr := request.Headers.Get("Content-Length")
+	if len(clStr) > 0 {
+		contentLength, err := strconv.Atoi(clStr)
+		if err != nil {
+			return nil, fmt.Errorf("invalid Content-Length: %v", err)
+		}
+
+		buf := make([]byte, contentLength)
+		if _, err := io.ReadFull(reader, buf); err != nil {
+			return nil, fmt.Errorf("failed to read request's body: %v", err)
+		}
+
+		request.Body = buf
+	} else {
+		request.Body = nil
 	}
 
 	return &request, nil

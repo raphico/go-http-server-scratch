@@ -19,7 +19,8 @@ func main() {
 	mux.HandleFunc("/", handler.HomeHandler)
 	mux.HandleFunc("/echo/", handler.EchoHandler)
 	mux.HandleFunc("/user-agent", handler.UserAgentHandler)
-	mux.HandleFunc("/files", handler.FilesHandler)
+	mux.HandleFunc("GET /files", handler.GetFileHandler)
+	mux.HandleFunc("POST /files", handler.PostFileHandler)
 
 	s := server.New(addr, mux)
 	if err := s.Start(); err != nil {
