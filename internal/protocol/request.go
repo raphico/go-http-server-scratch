@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"net"
 	"net/url"
 	"strconv"
 	"strings"
@@ -17,12 +16,10 @@ type Request struct {
 	Body    []byte
 }
 
-func ParseRequest(conn net.Conn) (*Request, error) {
+func ParseRequest(reader *bufio.Reader) (*Request, error) {
 	var request = Request{
 		Headers: make(Header),
 	}
-
-	reader := bufio.NewReader(conn)
 
 	requestLine, err := reader.ReadString('\n')
 	if err != nil {

@@ -1,11 +1,11 @@
 package server
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io"
 	"net"
-	"strings"
 
 	"github.com/raphico/go-http-server-scratch/internal/mux"
 	"github.com/raphico/go-http-server-scratch/internal/protocol"
@@ -28,14 +28,13 @@ func (s *Server) Start() error {
 
 	listener, err := net.Listen("tcp", s.addr)
 	if err != nil {
-		port := strings.Split(s.addr, ":")[1]
-		return fmt.Errorf("failed to start bind to port: %v", port)
+		return fmt.Errorf("failed to start bind to %s: %w", s.addr, err)
 	}
 
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			return fmt.Errorf("failed to accept connection: %v", err)
+			return fmt.Errorf("failed to accept connection: %w", err)
 		}
 
 		go s.handleConnection(conn)
@@ -46,9 +45,11 @@ func (s *Server) handleConnection(conn net.Conn) {
 	// close the tcp connection once done
 	defer conn.Close()
 
+	reader := bufio.NewReader(conn)
+
 	for {
 		response := protocol.NewResponse(conn)
-		request, err := protocol.ParseRequest(conn)
+		request, err := protocol.ParseRequest(reader)
 
 		if err != nil {
 			if errors.Is(err, io.EOF) || errors.Is(err, net.ErrClosed) {
@@ -62,5 +63,9 @@ func (s *Server) handleConnection(conn net.Conn) {
 		}
 
 		s.mux.Match(response, request)
+
+		if request.Headers.Get("Connection") == "close" {
+			break
+		}
 	}
 }

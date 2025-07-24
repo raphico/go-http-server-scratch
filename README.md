@@ -22,7 +22,7 @@ This project was built to:
   - `POST /files/<filename>` — Reads request body and Saves file to disk
 - Gzip compression for clients that support it (`Accept-Encoding: gzip`)
 - Concurrency using goroutines (one per connection)
-- Persistent connections (`Connection: keep-alive`)
+- Persistent connections
 - Proper request body reading and `Content-Length` handling
 - 404 Not Found for unknown routes
 - Graceful connection closing (`Connection: close`, EOF handling)
@@ -61,8 +61,9 @@ curl -v --header "User-Agent: foobar/1.2.3" http://localhost:4221/user-agent
 | `internal/protocol/request.go`  | HTTP request parsing                             |
 | `internal/protocol/response.go` | HTTP response generation                         |
 | `internal/protocol/header.go`   | Manages HTTP header parsing, storage, and access |
-| `internal/server/handler`       | handler functions                                |
-| `internal/server/mux`           | Defines multiplexer                              |
+| `internal/handler`              | handler functions                                |
+| `internal/mux/mux.go`           | Defines multiplexer                              |
+| `internal/compress/compress.go` | Handles compression logic                        |
 
 ## Credits
 
