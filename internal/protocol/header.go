@@ -1,23 +1,27 @@
 package protocol
 
+import "strings"
+
 type Header map[string][]string
 
+func canonical(key string) string {
+	return strings.ToLower(key)
+}
+
 func (h Header) Set(key string, value string) {
-	h[key] = append(h[key], value)
+	k := canonical(key)
+	h[k] = append(h[k], value)
 }
 
 func (h Header) Get(key string) string {
-	if values, ok := h[key]; ok && len(values) > 0 {
-		return values[0]
+	values := h.Values(key)
+	if len(values) == 0 {
+		return ""
 	}
 
-	return ""
+	return values[0]
 }
 
 func (h Header) Values(key string) []string {
-	if values, ok := h[key]; ok && len(values) > 0 {
-		return values
-	}
-
-	return nil
+	return h[canonical(key)]
 }
